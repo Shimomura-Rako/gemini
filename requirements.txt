@@ -4,3 +4,5 @@ requests
 beautifulsoup4
 apscheduler
 pushbullet.py
+psycopg2-binary
+

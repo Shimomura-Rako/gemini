@@ -14,6 +14,12 @@
 # - apscheduler: 定期実行処理用
 # - pushbullet.py: Pushbullet APIとの連携用
 # - その他の標準ライブラリ（os, random, stringなど）
+#
+# 🚨 修正点
+# -----------------------------------------------------------
+# - データベース接続をRenderのPostgreSQLに対応させました。
+# - `DATABASE_URL`という環境変数から接続情報を読み込みます。
+# - HerokuやRenderなどのプラットフォームではPostgreSQLが一般的です。
 # -----------------------------------------------------------
 #
 # 🚨 セキュリティに関する注意
@@ -40,7 +46,16 @@ import time
 
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
+
+# -----------------------------------------------------------
+# データベース接続設定をPostgreSQLに変更
+# Renderの環境変数DATABASE_URLを読み込むように修正しました。
+# 環境変数がなければ、以前のSQLiteに戻るようにしています。
+# -----------------------------------------------------------
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'database.db')
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # セキュリティ向上のため、SECRET_KEYを環境変数から取得するように変更
