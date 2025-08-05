@@ -20,6 +20,7 @@
 # - データベース接続をRenderのPostgreSQLに対応させました。
 # - `DATABASE_URL`という環境変数から接続情報を読み込みます。
 # - HerokuやRenderなどのプラットフォームではPostgreSQLが一般的です。
+# - 新しく管理用の`/admin`ページを追加しました。
 # -----------------------------------------------------------
 #
 # 🚨 セキュリティに関する注意
@@ -27,6 +28,7 @@
 # - `SECRET_KEY`や`DOWNLOAD_KEY`はハードコードせず、
 #   環境変数から取得するように変更しています。
 # - `download`ルートの鍵も、より強固なものに変更可能にしています。
+# - `/admin`ページを保護するため、`ADMIN_SECRET_KEY`を追加しました。
 # -----------------------------------------------------------
 #
 
@@ -313,7 +315,7 @@ def check_teacher_availability():
                 consecutive_errors += 1
                 print(f"⚠ DMMに全ユーザーでアクセス失敗（{consecutive_errors}回連続）")
                 if consecutive_errors >= MAX_ERRORS:
-                    print("🚨 一時的にチェック処理をスキップします")
+                    print("� 一時的にチェック処理をスキップします")
                     return
             else:
                 consecutive_errors = 0
@@ -325,6 +327,85 @@ scheduler = BackgroundScheduler()
 interval_minutes = int(os.environ.get("CHECK_INTERVAL_MINUTES", 1))
 scheduler.add_job(check_teacher_availability, 'interval', minutes=interval_minutes)
 scheduler.start()
+
+# -----------------------------------------------------------
+# 🔽🔽🔽 新しい管理ページを追加 🔽🔽🔽
+# -----------------------------------------------------------
+@app.route("/admin")
+def admin_dashboard():
+    """
+    アプリの管理用ページ。
+    データベースに登録されているユーザー情報と講師情報を表示する。
+    アクセスには `ADMIN_SECRET_KEY` が必要。
+    """
+    # 🚨 環境変数から秘密鍵を取得し、認証を行う
+    key = request.args.get("key")
+    if key != os.environ.get("ADMIN_SECRET_KEY"):
+        return "アクセス権限がありません！", 403
+
+    # データベースから全ユーザーデータを取得
+    all_data = UserData.query.order_by(UserData.user_id).all()
+
+    # ユーザーIDごとにデータをグループ化
+    users = {}
+    for item in all_data:
+        if item.user_id not in users:
+            users[item.user_id] = []
+        users[item.user_id].append(item)
+
+    # データをHTMLとして整形して返す
+    html_output = """
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>管理ダッシュボード</title>
+        <style>
+            body { font-family: sans-serif; margin: 2em; line-height: 1.6; }
+            h1 { color: #333; }
+            h2 { border-bottom: 2px solid #ccc; padding-bottom: 0.5em; margin-top: 2em; }
+            .user-box { background-color: #f4f4f4; border: 1px solid #ddd; padding: 1em; margin-bottom: 1em; border-radius: 8px; }
+            .user-id { font-weight: bold; color: #555; }
+            .teacher-list { list-style: none; padding: 0; }
+            .teacher-item { background-color: #fff; padding: 0.5em; border-radius: 4px; margin-bottom: 0.5em; border: 1px solid #eee; }
+        </style>
+    </head>
+    <body>
+        <h1>アプリ管理ダッシュボード</h1>
+        <p>全ユーザーの登録状況を監視します。</p>
+    """
+
+    if not users:
+        html_output += "<p>まだユーザー登録はありません。</p>"
+    else:
+        for user_id, teachers in users.items():
+            last_accessed_date = teachers[0].last_accessed.strftime('%Y-%m-%d %H:%M:%S') if teachers[0].last_accessed else 'N/A'
+            html_output += f"""
+            <div class="user-box">
+                <p class="user-id">ユーザーID: {user_id}</p>
+                <p>最終アクセス: {last_accessed_date}</p>
+                <h2>登録講師一覧 ({len(teachers)}件)</h2>
+                <ul class="teacher-list">
+            """
+            for teacher in teachers:
+                html_output += f"""
+                    <li class="teacher-item">
+                        <strong>{teacher.teacher_name}</strong> (講師番号: {teacher.teacher_id})<br>
+                        直近の空き枠: {teacher.last_available_count}件
+                    </li>
+                """
+            html_output += """
+                </ul>
+            </div>
+            """
+    html_output += """
+    </body>
+    </html>
+    """
+    return html_output
+# -----------------------------------------------------------
+# 🔼🔼🔼 新しい管理ページを追加 🔼🔼🔼
+# -----------------------------------------------------------
 
 @app.route("/download")
 def download_db():
@@ -348,3 +429,4 @@ def download_db():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
+�
