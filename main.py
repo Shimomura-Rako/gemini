@@ -315,7 +315,7 @@ def check_teacher_availability():
                 consecutive_errors += 1
                 print(f"⚠ DMMに全ユーザーでアクセス失敗（{consecutive_errors}回連続）")
                 if consecutive_errors >= MAX_ERRORS:
-                    print("� 一時的にチェック処理をスキップします")
+                    print("🚨 一時的にチェック処理をスキップします")
                     return
             else:
                 consecutive_errors = 0
@@ -429,4 +429,3 @@ def download_db():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
-�
