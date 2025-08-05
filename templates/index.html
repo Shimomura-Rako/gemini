@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMM英会話 講師通知アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">講師通知設定</h1>
+        
+        <!-- Flaskのflashメッセージを表示 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                {% for category, message in messages %}
+                    <div class="p-3 rounded-lg text-sm text-white
+                        {% if category == 'success' %} bg-green-500
+                        {% elif category == 'danger' %} bg-red-500
+                        {% elif category == 'warning' %} bg-yellow-500
+                        {% else %} bg-blue-500
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="bg-gray-50 p-6 rounded-lg mb-6">
+            <p class="text-sm text-gray-600 mb-2">現在のユーザーID: <span class="font-mono text-indigo-600 font-semibold">{{ user_id }}</span></p>
+            <p class="text-sm text-gray-600">登録済み講師数: <span class="font-semibold text-gray-800">{{ total_teachers }} / 10</span></p>
+        </div>
+
+        <!-- 講師登録フォーム -->
+        <form action="/" method="post" class="space-y-4">
+            <div>
+                <label for="teacher_id" class="block text-sm font-medium text-gray-700">講師番号</label>
+                <input type="text" id="teacher_id" name="teacher_id" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="例: 12345" required>
+            </div>
+            <div>
+                <label for="pushbullet_token" class="block text-sm font-medium text-gray-700">Pushbulletアクセストークン</label>
+                <input type="text" id="pushbullet_token" name="pushbullet_token" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="o.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold transition-colors duration-200">
+                講師を登録する
+            </button>
+        </form>
+
+        <!-- 登録済み講師一覧 -->
+        {% if all_data %}
+            <div class="mt-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">登録済み講師</h2>
+                <ul class="space-y-2">
+                {% for data in all_data %}
+                    <li class="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
+                        <div class="flex-grow">
+                            <span class="font-semibold text-gray-800">{{ data.teacher_name }}</span>
+                            <span class="text-sm text-gray-500 ml-2">(講師番号: {{ data.teacher_id }})</span>
+                        </div>
+                        <form action="/delete_teacher" method="post">
+                            <input type="hidden" name="teacher_id" value="{{ data.teacher_id }}">
+                            <button type="submit" class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                削除
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <div class="mt-8 text-center text-sm">
+            <a href="/set_user" class="text-indigo-600 hover:text-indigo-800 underline mr-4">ユーザーIDを再設定</a>
+            <a href="/tutorial" class="text-indigo-600 hover:text-indigo-800 underline">使い方を見る</a>
+        </div>
+    </div>
+</body>
+</html>

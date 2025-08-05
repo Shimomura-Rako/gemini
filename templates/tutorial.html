@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使い方</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center p-8">
+    <div class="container bg-white p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">使い方ガイド</h1>
+
+        <div class="space-y-6 text-gray-700">
+            <section>
+                <h2 class="text-xl font-bold mb-2 text-gray-800">ステップ1: ユーザーIDの登録</h2>
+                <p>アプリを初めて使うときは、まず自分だけの**ユーザーID**を登録します。これはあなたのデータを管理するための、いわば「鍵」のようなものです。</p>
+                <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
+                    <li>`http://127.0.0.1:5000/set_user`にアクセスします。</li>
+                    <li>好きなユーザーIDを入力して「新規登録」ボタンを押してください。</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-2 text-gray-800">ステップ2: 講師の登録</h2>
+                <p>次に、通知を受け取りたい講師の情報を登録します。</p>
+                <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
+                    <li>DMM英会話の講師ページのURLにある講師番号をコピーします。（例: `eikaiwa.dmm.com/teacher/index/`**`12345`**`/`）</li>
+                    <li>Pushbulletのウェブサイトで**アクセストークン**を取得します。</li>
+                    <li>アプリの画面で、講師番号とアクセストークンを入力して「講師を登録する」を押します。</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-xl font-bold mb-2 text-gray-800">ステップ3: 通知を受け取る</h2>
+                <p>登録が完了すると、アプリが定期的に講師のページを自動でチェックし始めます。</p>
+                <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
+                    <li>予約が空いたとき、Pushbulletを通じてあなたのスマホやパソコンに通知が届きます。</li>
+                    <li>通知からすぐに講師ページに飛んで、予約することができます。</li>
+                </ul>
+            </section>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="/" class="inline-block bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700 transition-colors duration-200 font-semibold">トップページに戻る</a>
+        </div>
+    </div>
+</body>
+</html>

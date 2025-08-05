@@ -1,0 +1,6 @@
+Flask
+Flask-SQLAlchemy
+requests
+beautifulsoup4
+apscheduler
+pushbullet.py
